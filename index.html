@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<title>おたすけ巨神マモルG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&family=Mochiy+Pop+One&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1d2b36;--mustard:#f2b705;--teal:#0f7c80;--coral:#ff5a4e;--sky:#9fdcff;--panel:#fffaf0;--panel-ink:#1d2b36;--shadow:#1d2b36;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--panel:#1f2e39;--panel-ink:#fff4d6;--shadow:#000}}
+:root[data-theme="dark"]{--panel:#1f2e39;--panel-ink:#fff4d6;--shadow:#000}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--sky);touch-action:none;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+body{font-family:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;color:var(--panel-ink)}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block}
+.hud{position:fixed;z-index:5;pointer-events:none}
+.card{background:var(--panel);color:var(--panel-ink);border:3px solid var(--ink);border-radius:14px;box-shadow:3px 3px 0 var(--shadow)}
+#score{top:calc(env(safe-area-inset-top,0px) + 8px);left:calc(env(safe-area-inset-left,0px) + 8px);padding:4px 10px 5px;border-radius:12px}
+#score .rank{font-family:"Mochiy Pop One",sans-serif;font-size:10px;color:var(--teal)}
+#score .n{font-family:"Mochiy Pop One",sans-serif;font-size:16px;line-height:1.1}
+#score .next{font-size:10px;font-weight:800;opacity:.85}
+#score .n small{font-size:10px;font-family:"M PLUS Rounded 1c",sans-serif;font-weight:800;margin-left:2px}
+#mini{top:calc(env(safe-area-inset-top,0px) + 8px);right:calc(env(safe-area-inset-right,0px) + 8px);width:78px;height:78px;border-radius:50%;overflow:hidden}
+#mini canvas{width:100%;height:100%;display:block}
+#bMute,#bPause{position:fixed;z-index:22;right:calc(env(safe-area-inset-right,0px) + 8px);width:44px;height:44px;border-radius:50%;font-size:19px;line-height:1;padding:0;cursor:pointer;pointer-events:auto;display:grid;place-items:center;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:transform .08s ease,opacity .08s ease}
+#bMute{top:calc(env(safe-area-inset-top,0px) + 92px)}
+#bPause{top:calc(env(safe-area-inset-top,0px) + 142px);visibility:hidden}
+#bMute:active,#bPause:active{transform:scale(.92);opacity:.88}
+#quests{top:calc(env(safe-area-inset-top,0px) + 76px);left:calc(env(safe-area-inset-left,0px) + 8px);list-style:none;margin:0;padding:0;display:flex;gap:8px}
+#quests li{position:relative;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;border-color:var(--c);border-width:3px;box-shadow:2px 2px 0 var(--shadow)}
+#quests li.focus{background:var(--c);transform:scale(1.12)}
+#quests .qi{font-size:20px;line-height:1}
+#quests b{position:absolute;right:-8px;bottom:-6px;font-size:10px;padding:0 4px;border-radius:8px;background:var(--coral);color:#fff;font-family:"Mochiy Pop One",sans-serif}
+#compass{top:calc(env(safe-area-inset-top,0px) + 126px);left:calc(env(safe-area-inset-left,0px) + 8px);display:flex;align-items:center;gap:6px}
+#arrowWrap{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--mustard);flex:none}
+#arrow{width:20px;height:20px}
+#clabel{font-weight:800;font-size:12px;padding:3px 10px;max-width:min(420px,calc(100vw - 70px));white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-radius:999px}
+#toast{left:50%;top:calc(env(safe-area-inset-top,0px) + 170px);transform:translate(-50%,0) scale(.92);opacity:0;padding:10px 16px;font-weight:800;font-size:15px;text-align:center;max-width:86vw;transition:opacity .2s,transform .2s}
+#toast.show{opacity:1;transform:translate(-50%,0) scale(1)}
+#prompt{left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 126px);transform:translateX(-50%);padding:7px 14px;font-weight:800;font-size:14px;background:var(--mustard);color:#1d2b36;display:none;white-space:nowrap}
+#prompt.show{display:block}
+@keyframes pulse{50%{transform:translateX(-50%) scale(1.06)}}
+@keyframes pulseB{50%{transform:scale(1.07)}}
+#prompt.show{animation:pulse .9s ease-in-out infinite}
+#touch{display:none}
+#keys{left:calc(env(safe-area-inset-left,0px) + 10px);bottom:calc(env(safe-area-inset-bottom,0px) + 10px);font-size:12px;padding:8px 12px;line-height:1.7}
+kbd{font-family:inherit;font-weight:800;border:2px solid var(--ink);border-radius:6px;padding:0 5px;background:var(--mustard);color:#1d2b36}
+@media (pointer:coarse){#touch{display:block}#keys{display:none}#prompt{bottom:calc(env(safe-area-inset-bottom,0px) + 180px)}}
+#joyZone{position:fixed;left:0;bottom:0;width:50vw;height:55vh;z-index:6;touch-action:none}
+#joyBase{position:fixed;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;border:3px solid rgba(29,43,54,.55);background:rgba(255,250,240,.35);display:none;z-index:7;pointer-events:none}
+#joyKnob{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px;border-radius:50%;background:var(--mustard);border:3px solid var(--ink)}
+#btns{position:fixed;right:calc(env(safe-area-inset-right,0px) + 14px);bottom:calc(env(safe-area-inset-bottom,0px) + 18px);z-index:8;display:flex;gap:12px;align-items:flex-end}
+.stack{display:flex;flex-direction:column;gap:10px}
+.btn{font-family:"Mochiy Pop One",sans-serif;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--shadow);border-radius:50%;width:64px;height:64px;font-size:12px;background:var(--panel);color:var(--panel-ink);touch-action:manipulation;display:grid;place-items:center;line-height:1.15;padding:0;cursor:pointer;transition:transform .08s ease,opacity .08s ease}
+.btn:active{transform:scale(.92);opacity:.88}
+.btn.on{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--shadow)}
+#bHelp{width:92px;height:92px;background:var(--coral);color:#fff;font-size:14px}
+#bHelp.ready{background:#ff2f6a;animation:pulseB .8s ease-in-out infinite}
+#ending,#clear,#pause{position:fixed;inset:0;z-index:24;display:none;place-items:center;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px);background:rgba(159,220,255,.94);overflow:auto}
+#ending.show,#clear.show,#pause.show{display:grid}
+#pause{z-index:26;background:rgba(29,43,54,.45)}
+#clear{z-index:25}
+#ecard,#ccard,#pcard{position:relative;max-width:400px;width:100%;padding:20px;text-align:center}
+#ecard .fw,#ccard .fw,#pcard .fw{font-size:54px;line-height:1;margin-bottom:4px;animation:pop .9s ease-in-out infinite alternate}
+@keyframes pop{from{transform:scale(1)}to{transform:scale(1.14)}}
+#ecard h2,#ccard h2,#pcard h2{font-family:"Mochiy Pop One",sans-serif;font-weight:400;font-size:clamp(20px,6.5vw,27px);line-height:1.3;margin:0 0 12px;color:var(--mustard);-webkit-text-stroke:2px #1d2b36;paint-order:stroke fill;text-shadow:3px 3px 0 #1d2b36}
+#ecard .es,#ccard .es,#pcard .es{margin:0 0 6px;font-size:16px;font-weight:800}
+#ecard .es b,#ccard .es b{font-family:"Mochiy Pop One",sans-serif;font-size:26px;color:var(--coral);margin:0 3px}
+#ecard #eBest{display:block;font-size:12px;color:var(--teal);margin-top:2px}
+#ecard .er{margin:10px 0 16px;font-size:15px;font-weight:800;padding:8px;border:3px solid var(--ink);border-radius:12px;background:rgba(242,183,5,.25)}
+#ebtns{display:grid;gap:10px}
+@media (prefers-reduced-motion:reduce){#ecard .fw{animation:none}}
+#title{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px);background:#9fdcff;overflow:auto}
+#title::before{content:"";position:fixed;left:50%;bottom:-38vmin;width:90vmin;height:90vmin;margin-left:-45vmin;border-radius:50%;background:#ffe07a;border:4px solid #1d2b36}
+#tcard{position:relative;max-width:440px;width:100%;padding:22px 22px 20px}
+#tcard h1 rt{font-size:.34em;font-family:"M PLUS Rounded 1c",sans-serif;font-weight:800;-webkit-text-stroke:0;text-shadow:none;color:var(--panel-ink)}
+#tcard .lead{font-size:15px;font-weight:800}
+#tcard .cheer{font-size:13px;font-weight:800;color:var(--teal);margin:0 0 14px}
+#tcard h1{font-family:"Mochiy Pop One",sans-serif;font-weight:400;font-size:clamp(30px,9vw,42px);line-height:1.15;margin:0 0 10px;color:var(--mustard);-webkit-text-stroke:2px #1d2b36;paint-order:stroke fill;text-shadow:3px 3px 0 #1d2b36;letter-spacing:.02em}
+#tcard p{margin:0 0 12px;line-height:1.8;font-size:16px}
+#tcard ul{list-style:none;padding:0;margin:0 0 14px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#tcard li{font-size:14.5px;font-weight:800;padding:6px 8px;border:2px solid var(--ink);border-radius:10px}
+.how{font-size:14px;line-height:1.8;margin:0 0 16px;padding:10px 12px;border-radius:10px;background:rgba(15,124,128,.12)}
+#modes{display:grid;grid-template-columns:1.35fr 1fr;gap:10px;align-items:stretch}
+#startKids{font-size:22px;padding:16px 8px}
+.startBtn{font-family:"Mochiy Pop One",sans-serif;font-size:18px;width:100%;min-height:56px;padding:12px 8px;border:3px solid var(--ink);border-radius:14px;background:var(--coral);color:#fff;box-shadow:4px 4px 0 var(--shadow);cursor:pointer;touch-action:manipulation;transition:transform .08s ease,opacity .08s ease}
+#startAdult{background:var(--teal)}
+.startBtn small{display:block;font-size:11px;font-family:"M PLUS Rounded 1c",sans-serif;font-weight:800;margin-top:2px}
+.startBtn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--shadow)}
+.startBtn:focus-visible,.btn:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
+body.kids .btn{width:80px;height:80px;font-size:15px}
+body.kids #bHelp{width:112px;height:112px;font-size:18px}
+body.kids #clabel{font-size:13px}
+body.kids #toast{font-size:17px}
+body.kids #prompt{font-size:19px;padding:10px 18px}
+.btn.lit{background:var(--mustard);color:#1d2b36}
+.btn.hint{background:var(--mustard);color:#1d2b36;animation:pulseB .7s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){#prompt.show,#bHelp.ready,.btn.hint{animation:none}}
+</style>
+</head>
+<body>
+<audio id="bgm" src="bgm.m4a" loop preload="auto" playsinline></audio>
+<audio id="endbgm" src="end.m4a" loop preload="metadata" playsinline></audio>
+<div id="title">
+  <div id="tcard" class="card">
+    <h1>おたすけ<ruby>巨神<rt>きょしん</rt></ruby><br>マモルG</h1>
+    <p class="lead">まちで だれかが こまってる。<br>きみが きょだいロボに なって、たすけに いこう！</p>
+    <ul>
+      <li>🐱 おちそうな ねこ</li>
+      <li>👵 にもつが おもい おばあさん</li>
+      <li>🚗 くるまが うごかない おじさん</li>
+      <li>🎈 ふうせんを なくした こ</li>
+    </ul>
+    <p class="cheer">⭐ 3つの まちを たすけると エンディング。<br>ひる → よる → こうじょう。ロボも おおきくなるよ！</p>
+    <div class="how" id="how"></div>
+    <div id="modes"><button class="startBtn" id="startKids">▶ はじめる<small>こども・かんたん</small></button><button class="startBtn" id="startAdult">おとなモード<small>じかんせいげん あり</small></button></div>
+  </div>
+</div>
+<canvas id="c"></canvas>
+
+<div id="score" class="hud card"><div class="rank"><span id="stageLab">1めん</span> · <span id="rank">見習いロボ</span></div><div class="n"><span id="helped">0</span><small id="unit">人たすけた</small> <span id="pts">0</span><small>pt</small></div><div class="next" id="next"></div></div>
+<div id="mini" class="hud card"><canvas id="mcv" width="184" height="184"></canvas></div>
+<div id="compass" class="hud" style="display:none">
+  <div id="arrowWrap" class="card"><svg id="arrow" viewBox="0 0 24 24"><path d="M12 2 L20 20 L12 15.5 L4 20 Z" fill="#1d2b36"/></svg></div>
+  <div id="clabel" class="card"></div>
+</div>
+<ul id="quests" class="hud"></ul>
+<button id="bMute" class="hud card" aria-label="音を消す">🔊</button>
+<button id="bPause" class="hud card" aria-label="ポーズ">⏸</button>
+<div id="toast" class="hud card"></div>
+<div id="prompt" class="hud card"></div>
+
+<div id="clear"><div id="ccard" class="card">
+  <div class="fw">⭐</div>
+  <h2 id="cTitle">1めん クリア！</h2>
+  <p class="es" id="cSub"></p>
+  <p class="es" id="cCount"></p>
+  <p class="es"><b id="cPts">0</b>てん</p>
+  <div id="ebtns"><button class="startBtn" id="cNext">▶ つぎの まちへ</button></div>
+</div></div>
+<div id="pause"><div class="card" id="pcard">
+  <div class="fw">⏸</div>
+  <h2>ひとやすみ</h2>
+  <p class="es">おして つづける</p>
+  <div id="ebtns"><button class="startBtn" id="pResume">▶ つづける</button></div>
+</div></div>
+<div id="ending"><div id="ecard" class="card">
+  <div class="fw">🎉</div>
+  <h2 id="eH">ぜんぶ たすけた！</h2>
+  <p class="es" id="eSub">3つの まちを まもった</p>
+  <p class="es">たすけた ひと <b id="eHelped">0</b>にん</p>
+  <p class="es"><b id="ePts">0</b>てん<span id="eBest"></span></p>
+  <p class="er" id="eRank"></p>
+  <div id="ebtns">
+    <button class="startBtn" id="eAgain">▶ もういちど あそぶ</button>
+  </div>
+</div></div>
+<div id="keys" class="hud card"><kbd>W A S D</kbd> 移動　<kbd>Space</kbd> 上昇　<kbd>Shift</kbd> 下降<br><kbd>E</kbd> たすける　<kbd>← →</kbd> かドラッグで視点</div>
+
+<div id="touch">
+  <div id="joyZone"></div>
+  <div id="joyBase"><div id="joyKnob"></div></div>
+  <div id="btns">
+    <div class="stack">
+      <button class="btn" id="bUp" aria-label="上昇">▲<br>上昇</button>
+      <button class="btn" id="bDown" aria-label="下降">▼<br>下降</button>
+    </div>
+    <button class="btn" id="bHelp" aria-label="たすける">✋<br>たすける</button>
+  </div>
+</div>
+
+
+<script src="three.min.js"></script>
+<script src="missions.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
